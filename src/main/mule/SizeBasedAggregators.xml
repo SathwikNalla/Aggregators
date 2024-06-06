@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="SizeBasedAggregatorsFlow" doc:id="5f0380d2-3858-42c5-a4e0-086cd90357ba" >
+		<http:listener doc:name="Listener" doc:id="fce2b71c-14e2-42ea-bfb6-722cc182f9c0" config-ref="HTTP_Listener_config" path="/SizeBasedAggregators"/>
+		<aggregators:size-based-aggregator doc:name="Size based aggregator" doc:id="c7d552ab-0a61-4282-af55-48bddecbb4cb" name="SizeBasedAggregators" maxSize="3">
+			<aggregators:incremental-aggregation >
+				<logger level="INFO" doc:name="Logger" doc:id="ea5698d2-ab30-4aaf-8507-ecb2e0882072" message="#[payload]" />
+			</aggregators:incremental-aggregation>
+			<aggregators:aggregation-complete >
+				<ee:transform doc:name="Transform Message" doc:id="81a42e35-5766-4567-ac62-2d7234ba5224">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload[1]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="e41b1e1d-28f9-4fdd-809d-6c8b3c383a7d" message="#[payload]"/>
+			</aggregators:aggregation-complete>
+		</aggregators:size-based-aggregator>
+	</flow>
+</mule>

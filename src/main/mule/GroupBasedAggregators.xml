@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="GroupBasedAggregatorsFlow" doc:id="ec4e62c6-70af-4dc3-bb67-8add9d9215ef" >
+		<http:listener doc:name="Listener" doc:id="7206edc2-ec93-45a8-9756-326638c4cd8c" config-ref="HTTP_Listener_config" path="/GroupBasedAggregators"/>
+		<aggregators:group-based-aggregator doc:name="Group based aggregator" doc:id="7b8b0a56-2305-48e9-8d17-2833287a6b09" name="GroupBasedAggregator" groupId="#[payload.Id]" groupSize="3">
+			<aggregators:incremental-aggregation >
+				<logger level="INFO" doc:name="Logger" doc:id="eda4a1d7-205d-44fd-8112-0e70ae5d4f61" message="#[payload]"/>
+			</aggregators:incremental-aggregation>
+			<aggregators:aggregation-complete >
+				<ee:transform doc:name="Transform Message" doc:id="2bd4de91-96e4-48bb-9444-d0dc01a1125d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[1]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="e8f65a22-3d26-4d1d-9017-eb7a55a0805b" message="#[payload]"/>
+			</aggregators:aggregation-complete>
+		</aggregators:group-based-aggregator>
+	</flow>
+</mule>
